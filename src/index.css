@@ -8,13 +8,23 @@ body { color: #fff; font-family: Onest, system-ui, sans-serif; -webkit-font-smoo
 
 .bg-space {
   background:
-    radial-gradient(60% 50% at 15% 0%, rgba(108, 92, 231, 0.30), transparent 70%),
-    radial-gradient(50% 40% at 95% 100%, rgba(0, 210, 255, 0.16), transparent 70%),
+    radial-gradient(55% 45% at 12% 0%, rgba(108, 92, 231, 0.32), transparent 70%),
+    radial-gradient(45% 40% at 100% 8%, rgba(0, 210, 255, 0.10), transparent 70%),
+    radial-gradient(50% 45% at 92% 100%, rgba(0, 210, 255, 0.18), transparent 70%),
+    radial-gradient(40% 35% at 0% 100%, rgba(108, 92, 231, 0.16), transparent 70%),
     #0F1235;
+  background-attachment: fixed;
 }
-.glass { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.10); backdrop-filter: blur(14px); }
-.glass-hover { transition: background .2s, border-color .2s; }
-.glass-hover:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(0, 210, 255, 0.35); }
-button:focus-visible, input:focus-visible { outline: 2px solid #00D2FF; outline-offset: 2px; }
+.glass {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
+}
+.glass-hover { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease; }
+.glass-hover:hover { transform: translateY(-2px); border-color: rgba(0, 210, 255, 0.4); box-shadow: 0 12px 40px rgba(108, 92, 231, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+button:focus-visible { outline: 2px solid #00D2FF; outline-offset: 2px; }
+input:focus, input:focus-visible { outline: none; }
+.glass:focus-within { border-color: rgba(0, 210, 255, 0.45); box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.07); }
 ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 8px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

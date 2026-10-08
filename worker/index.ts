@@ -1,4 +1,4 @@
-interface Env { GEMINI_API_KEY: string; GEMINI_MODEL?: string; ASSETS: Fetcher }
+interface Env { GEMINI_API_KEY: string; GEMINI_MODEL?: string; GEMINI_FALLBACK_MODEL?: string; ASSETS: Fetcher }
 
 const SYSTEM = `Ты — «Профи», дружелюбный и спокойный AI-компаньон, который помогает подростку (12–18 лет) разобраться в интересах и профессиях.
 Правила:
@@ -12,6 +12,25 @@ const SYSTEM = `Ты — «Профи», дружелюбный и спокой�
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } })
+
+async function callGemini(env: Env, body: string): Promise<Response> {
+  const models = [env.GEMINI_MODEL || 'gemini-3.8-flash', env.GEMINI_FALLBACK_MODEL].filter(Boolean) as string[]
+  let last!: Response
+  for (const model of models) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY }, body },
+      )
+      if (r.ok) return r
+      last = r
+      console.error('Gemini error', model, r.status, await r.clone().text())
+      if (![429, 500, 503].includes(r.status)) break // повторять только временные ошибки
+      await new Promise((res) => setTimeout(res, 800 * (attempt + 1)))
+    }
+  }
+  return last
+}
 
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
@@ -31,22 +50,13 @@ export default {
         parts: [{ text: String(m.text).slice(0, 2000) }],
       }))
 
-      const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL || 'gemini-3.8-flash'}:generateContent`,
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: system }] },
-            contents,
-            generationConfig: { temperature: 0.8, maxOutputTokens: 1500 },
-          }),
-        },
-      )
-      if (!r.ok) {
-        console.error('Gemini error', r.status, await r.text())
-        return json({ error: 'upstream' }, 502)
-      }
+      const r = await callGemini(env, JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents,
+        generationConfig: { temperature: 0.8, maxOutputTokens: 1500 },
+      }))
+      if (!r.ok) return json({ error: 'upstream' }, 502)
+
       const d: any = await r.json()
       const text = d.candidates?.[0]?.content?.parts?.map((p: any) => p.text ?? '').join('') ?? ''
       return json({ text })
@@ -55,3 +65,6 @@ export default {
     }
   },
 }
+
+// npm run dev:worker
+// npm run dev

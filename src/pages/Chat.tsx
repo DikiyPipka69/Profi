@@ -56,7 +56,7 @@ export default function Chat({ a }: { a: Ctx }) {
   const quick = !busy && last?.role === 'model' ? parse(last.text).quick : a.history.length === 0 ? START : []
 
   return (
-    <section className="mx-auto flex h-[calc(100dvh-4.5rem)] max-w-2xl flex-col px-4 md:h-dvh">
+    <section className="mx-auto flex h-[calc(100dvh-6rem)] max-w-2xl flex-col px-4 md:h-dvh">
       <header className="flex items-center gap-4 py-4">
         <Orb size={44} active={busy} />
         <div>
