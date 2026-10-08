@@ -1,0 +1,11 @@
+name = "profi"
+main = "worker/index.ts"
+compatibility_date = "2025-01-01"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[vars]
+GEMINI_MODEL = "gemini-3.8-flash"
